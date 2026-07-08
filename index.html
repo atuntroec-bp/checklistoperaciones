@@ -646,7 +646,7 @@ function initFirebase(){
     });
     db.ref(FB_PATH+'/personas').on('value',snap=>{
       if(isTyping)return;const r=snap.val();
-      if(r&&Array.isArray(r)){applyingRemote=true;people=r;try{localStorage.setItem(lsPpl(),JSON.stringify(r));}catch(e){}applyingRemote=false;}
+      if(r&&Array.isArray(r)&&r.length>0){applyingRemote=true;people=r;try{localStorage.setItem(lsPpl(),JSON.stringify(r));}catch(e){}renderLoginGrid();applyingRemote=false;}
     });
     db.ref(FB_PATH+'/thresholds').on('value',snap=>{
       if(isTyping)return;const r=snap.val();
@@ -679,7 +679,8 @@ function goToStep1(){
 function escJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 function renderLoginGrid(){
-  document.getElementById('loginGrid').innerHTML=people.map(p=>
+  const list=(people&&people.length>0)?people:DEFAULT_PEOPLE;
+  document.getElementById('loginGrid').innerHTML=list.map(p=>
     `<button class="person-btn" onclick="selectPerson('${escJs(p.name)}')">${escH(p.name)}</button>`
   ).join('');
 }
@@ -1205,14 +1206,22 @@ function fmtShort(str){
 /* ══════════════════════════════════════════
    INIT
    ══════════════════════════════════════════ */
-state.fatima=loadLocal('fatima');
-state.gracia=loadLocal('gracia');
-people=loadPpl();
-thresholds=loadThr();
-document.getElementById('vesselSub').textContent=VESSEL_INFO.fatima;
-render();
-showLogin();
-initFirebase();
+function init(){
+  state.fatima=loadLocal('fatima');
+  state.gracia=loadLocal('gracia');
+  people=loadPpl();
+  if(!people||!people.length)people=DEFAULT_PEOPLE.slice();
+  thresholds=loadThr();
+  document.getElementById('vesselSub').textContent=VESSEL_INFO.fatima;
+  render();
+  showLogin();
+  initFirebase();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',init);
+}else{
+  init();
+}
 </script>
 </body>
 </html>
