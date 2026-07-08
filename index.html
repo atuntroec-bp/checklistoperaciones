@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Operaciones — ATUNTRO S.A.</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a1a18;min-height:100vh}
+.app{max-width:980px;margin:0 auto;padding:16px}
+
+/* ── LOGIN OVERLAY ── */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1F4E79 0%,#0d2f4d 100%);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;overflow-y:auto}
+.login-box{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-height:90vh;overflow-y:auto}
+.login-logo{font-size:11px;font-weight:700;color:#1F4E79;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.login-box h2{font-size:18px;font-weight:700;color:#1a1a18;margin-bottom:3px}
+.login-box .login-sub{font-size:12px;color:#999;margin-bottom:18px}
+.login-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#aaa;margin-bottom:8px}
+/* STEP 1: name grid */
+.name-step{display:block}
+.name-step.hidden{display:none}
+.person-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px}
+.person-btn{padding:11px 8px;border:2px solid #e8e6e0;border-radius:9px;background:#f9f9f7;font-size:12px;font-weight:600;color:#444;cursor:pointer;transition:.15s;text-align:center;font-family:inherit;line-height:1.3}
+.person-btn:hover{border-color:#2E75B6;background:#EBF4FD;color:#1F4E79}
+.person-btn.sel{border-color:#1F4E79;background:#1F4E79;color:#fff;box-shadow:0 2px 8px rgba(31,78,121,.3)}
+/* STEP 2: PIN */
+.pin-step{display:none}
+.pin-step.visible{display:block}
+.pin-who{font-size:14px;font-weight:700;color:#1F4E79;margin-bottom:14px;padding:10px 14px;background:#EBF4FD;border-radius:9px;border-left:4px solid #1F4E79}
+.pin-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#aaa;margin-bottom:8px}
+.pin-input-wrap{position:relative;margin-bottom:14px}
+.pin-input{width:100%;border:2px solid #e0e0e0;border-radius:9px;padding:14px 44px 14px 16px;font-size:26px;font-family:monospace;letter-spacing:10px;color:#1F4E79;font-weight:700;outline:none;transition:.2s;background:#f9f9f7}
+.pin-input:focus{border-color:#2E75B6;background:#fff}
+.pin-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:4px;line-height:1}
+.login-err{font-size:11px;color:#D85A30;min-height:16px;margin-bottom:10px;font-weight:600}
+.login-btn{width:100%;background:#1F4E79;color:#fff;border:none;border-radius:9px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit}
+.login-btn:hover{background:#163a5a}
+.login-back{font-size:11px;color:#aaa;cursor:pointer;text-align:center;margin-top:12px;text-decoration:underline;display:block}
+
+/* ── HEADER ── */
+.header{background:#1F4E79;border-radius:12px;padding:14px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.header-left h1{font-size:15px;font-weight:600;color:#fff;margin-bottom:1px}
+.header-left p{font-size:11px;color:#a8c4e0}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vessel-tabs{display:flex;gap:5px}
+.vtab{padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.75);font-size:11px;font-weight:500;cursor:pointer;transition:.2s;font-family:inherit}
+.vtab.active{background:#fff;color:#1F4E79;border-color:#fff;font-weight:600}
+.vtab:hover:not(.active){background:rgba(255,255,255,.12)}
+.user-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);border-radius:20px;padding:4px 12px 4px 6px}
+.user-avatar{width:24px;height:24px;border-radius:50%;background:#2E75B6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.user-chip-name{font-size:12px;color:#fff;font-weight:500}
+.user-chip-badge{font-size:9px;color:#FFD700;background:rgba(0,0,0,.2);border-radius:8px;padding:1px 5px;font-weight:700}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;padding:0 0 0 4px}
+.logout-btn:hover{color:#fff}
+.hdr-btn{font-size:11px;padding:5px 11px;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);cursor:pointer;font-family:inherit;transition:.2s}
+.hdr-btn:hover{background:rgba(255,255,255,.18)}
+.sync-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#a8c4e0;background:rgba(255,255,255,.1);border-radius:10px;padding:3px 9px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#999;transition:.3s}
+.sync-dot.ok{background:#4AE3A8}
+.sync-dot.local{background:#F5B942}
+.sync-dot.saving{background:#4AE3A8;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── DATES BAR ── */
+.dates-bar{background:#fff;border-radius:10px;padding:12px 18px;margin-bottom:10px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.df{display:flex;flex-direction:column;gap:3px;flex:1;min-width:150px}
+.df label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px}
+.df input[type=date],.df input[type=text]{border:none;background:transparent;font-size:13px;font-weight:500;color:#1a1a18;padding:0;outline:none;border-bottom:1.5px solid #e0e0e0;transition:.2s;font-family:inherit;width:100%}
+.df input:focus{border-bottom-color:#2E75B6}
+.ds-badge{font-size:10px;font-weight:700;border-radius:8px;padding:2px 8px;display:inline-block;margin-top:3px;width:fit-content}
+.ds-ok    {background:#E1F5EE;color:#085041}
+.ds-soon  {background:#FFF3CD;color:#7A4F00}
+.ds-urgent{background:#FFE5D9;color:#8B2E0A}
+.ds-past  {background:#f0efec;color:#999}
+
+/* ── AREA TABS ── */
+.area-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.atab{flex:1;min-width:150px;padding:10px 12px 8px;border-radius:9px;border:2px solid #e8e6e0;background:#fff;cursor:pointer;transition:border-color .2s,box-shadow .2s;text-align:left;font-family:inherit}
+.atab-name{font-size:12px;font-weight:700;color:#333;display:block;margin-bottom:2px}
+.atab-count{font-size:10px;color:#aaa;display:block}
+.atab-daterow{display:flex;align-items:center;gap:6px;margin-top:5px}
+.atab-datelabel{font-size:10px;color:#aaa}
+.atab-urgbadge{font-size:10px;font-weight:700;border-radius:8px;padding:2px 7px}
+.atab.urg-ok    {border-color:#1D9E75}
+.atab.urg-soon  {border-color:#F5B942}
+.atab.urg-urgent{border-color:#D85A30;box-shadow:0 0 0 3px rgba(216,90,48,.15);animation:upulse 2s infinite}
+.atab.urg-past  {border-color:#ccc}
+.atab.urg-none  {border-color:#e8e6e0}
+@keyframes upulse{0%,100%{box-shadow:0 0 0 2px rgba(216,90,48,.15)}50%{box-shadow:0 0 0 5px rgba(216,90,48,.0)}}
+.atab.active{border-color:#1F4E79!important;background:#1F4E79;animation:none!important;box-shadow:none}
+.atab.active .atab-name,.atab.active .atab-count,.atab.active .atab-datelabel{color:#fff!important;opacity:.9}
+.atab.active .atab-urgbadge{background:rgba(255,255,255,.2)!important;color:#fff!important}
+.atab:hover:not(.active){border-color:#2E75B6}
+
+/* ── PROGRESS ── */
+.prog-wrap{background:#fff;border-radius:10px;padding:11px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.prog-label{font-size:12px;color:#888;white-space:nowrap;min-width:160px}
+.prog-track{flex:1;height:8px;background:#e8e6e0;border-radius:5px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#2E75B6);border-radius:5px;transition:width .4s ease}
+.prog-pct{font-size:13px;font-weight:700;color:#1F4E79;min-width:36px;text-align:right}
+
+/* ── AREA PANEL ── */
+.area-panel{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:6px 18px 18px;margin-bottom:10px}
+.area-panel.bl-teal  {border-left:4px solid #1D9E75}
+.area-panel.bl-purple{border-left:4px solid #534AB7}
+.area-panel.bl-amber {border-left:4px solid #BA7517}
+.area-panel.bl-coral {border-left:4px solid #D85A30}
+.area-sub{padding:12px 0 4px;font-size:11px;color:#999}
+.deadline-badge{display:none;margin:6px 0 4px;font-size:11px;font-weight:700;color:#1F4E79;background:#EBF4FD;border:1px solid #cce3f7;border-radius:8px;padding:4px 10px;width:fit-content}
+.sec-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 4px;padding-bottom:5px;border-bottom:2px solid #E6F1FB}
+.sec-head{font-size:10px;font-weight:700;color:#1F4E79;text-transform:uppercase;letter-spacing:.8px}
+.sec-checkall{font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;border:1px solid #cce3f7;background:#EBF4FD;color:#1F4E79;cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit;flex-shrink:0}
+.sec-checkall:hover{background:#d6ecfc}
+.sec-checkall.all-done{background:#E1F5EE;border-color:#B7E4D1;color:#085041;cursor:default}
+
+/* Urgency config (master only) */
+.urg-config{background:#f9f9f7;border:1.5px dashed rgba(0,0,0,.12);border-radius:9px;padding:12px 14px;margin-top:10px;display:none}
+.urg-config.visible{display:block}
+.urg-config h4{font-size:11px;font-weight:700;color:#1F4E79;margin-bottom:10px}
+.urg-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;flex-wrap:wrap}
+.urg-row label{font-size:11px;color:#555;min-width:220px}
+.urg-row input[type=number]{width:64px;border:1.5px solid #e0e0e0;border-radius:6px;padding:4px 8px;font-size:12px;font-family:inherit;outline:none}
+.urg-row input:focus{border-color:#2E75B6}
+.urg-row-sep{border-top:1px dashed rgba(0,0,0,.1);margin:10px 0;padding-top:2px}
+
+/* ── STEPS ── */
+.step{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.step:last-of-type{border-bottom:none}
+.step-num{font-size:11px;font-weight:700;color:#aaa;flex-shrink:0;min-width:26px;margin-top:2px;font-family:monospace}
+.step-chk{width:20px;height:20px;border-radius:4px;border:1.5px solid #ccc;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:.15s;background:#fff;user-select:none}
+.step-chk.done{background:#1D9E75;border-color:#1D9E75}
+.step-chk.done::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.step-body{flex:1;min-width:0}
+.step-txt{font-size:13px;color:#1a1a18;background:transparent;border:none;width:100%;outline:none;font-family:inherit;resize:none;line-height:1.45;padding:0;border-bottom:1.5px solid transparent;transition:.2s;overflow:hidden}
+.step-txt:focus{border-bottom-color:#2E75B6}
+.step-txt.done-txt{text-decoration:line-through;color:#bbb}
+.step-txt[readonly]{cursor:default}
+.step-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.resp-sel{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;border:1px solid rgba(0,0,0,.12);background:#f8f8f6;color:#555;font-family:inherit;outline:none;cursor:pointer}
+.resp-sel.has-val{background:#EEEDFE;color:#26215C;border-color:#d0cdf5}
+.resp-sel:disabled{cursor:default;opacity:.85}
+.step-actions{display:inline-flex;gap:3px;margin-left:auto}
+.mini-btn{font-size:10px;width:20px;height:20px;border-radius:5px;border:1px solid #e0e0e0;background:#fbfbfa;color:#888;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;transition:.15s;padding:0}
+.mini-btn:hover{border-color:#2E75B6;color:#2E75B6;background:#EBF4FD}
+.mini-del:hover{border-color:#D85A30;color:#D85A30;background:#FFE5D9}
+.add-substep-btn{margin:8px 0 4px;background:none;border:1.5px dashed rgba(0,0,0,.15);border-radius:7px;padding:6px;font-size:11px;color:#aaa;cursor:pointer;width:100%;transition:.2s;font-family:inherit}
+.add-substep-btn:hover{border-color:#2E75B6;color:#2E75B6}
+.stamps{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.stamp{font-size:10px;border-radius:8px;padding:2px 9px;width:fit-content;display:flex;align-items:center;gap:5px}
+.stamp-ok {background:#E1F5EE;color:#085041;font-weight:600}
+.stamp-rev{background:#FFE5D9;color:#8B2E0A;font-weight:600}
+.hist-btn{font-size:10px;color:#2E75B6;cursor:pointer;padding:1px 6px;border-radius:7px;border:1px solid #cce3f7;background:#EBF4FD;transition:.2s;margin-left:2px;font-family:inherit}
+.hist-btn:hover{background:#d6ecfc}
+.atab-deadline{font-size:10px;color:#1F4E79;font-weight:600;margin-top:2px}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:150;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:12px;padding:22px;max-width:420px;width:100%;max-height:82vh;overflow-y:auto}
+.modal h3{font-size:14px;color:#1F4E79;margin-bottom:12px}
+.he{padding:8px 10px;border-radius:7px;margin-bottom:6px;border:1px solid}
+.he.he-ok {background:#E1F5EE;border-color:#B7E4D1;color:#085041}
+.he.he-rev{background:#FFE5D9;border-color:#F5C2AF;color:#8B2E0A}
+.he-action{font-weight:700;font-size:11px}
+.he-meta{font-size:10px;opacity:.75;margin-top:2px}
+.modal-close{margin-top:12px;width:100%;background:#f0efec;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;color:#555;font-family:inherit}
+/* People modal */
+.prow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.prow span{flex:1;font-size:13px}
+.prow-pin{font-size:11px;font-family:monospace;background:#f0efec;border-radius:6px;padding:2px 8px;color:#555;letter-spacing:3px}
+.prow-del{background:none;border:none;color:#D85A30;cursor:pointer;font-size:15px;padding:0 4px}
+.padd{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.padd input{border:1.5px solid rgba(0,0,0,.15);border-radius:7px;padding:7px 10px;font-size:12px;font-family:inherit;outline:none}
+.padd input:focus{border-color:#2E75B6}
+.padd button{background:#1F4E79;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+.add-step-btn{margin-top:10px;background:none;border:1.5px dashed rgba(0,0,0,.15);border-radius:7px;padding:7px;font-size:12px;color:#aaa;cursor:pointer;width:100%;transition:.2s;font-family:inherit}
+.add-step-btn:hover{border-color:#2E75B6;color:#2E75B6}
+.notes-wrap{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(0,0,0,.1)}
+.notes-lbl{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.notes-ta{width:100%;border:1.5px solid rgba(0,0,0,.1);border-radius:7px;padding:9px 12px;font-size:12px;font-family:inherit;resize:vertical;min-height:56px;background:#f9f9f7;outline:none;transition:.2s;line-height:1.5}
+.notes-ta:focus{border-color:#2E75B6;background:#fff}
+
+.footer{text-align:center;font-size:11px;color:#bbb;margin-top:18px;padding-bottom:8px}
+
+/* ── OBSERVACIONES ── */
+.obs-input{width:100%;border:none;border-bottom:1px dashed #d0d0d0;font-size:11px;color:#555;background:transparent;outline:none;padding:3px 0 2px;font-family:inherit;margin-top:5px;transition:.2s;touch-action:manipulation}
+.obs-input:focus{border-bottom-color:#2E75B6;color:#1a1a18}
+.obs-input::placeholder{color:#ccc;font-style:italic}
+
+/* ── MOBILE ── */
+button,select,.step-chk,.person-btn,.vtab,.login-btn{touch-action:manipulation}
+@media(max-width:640px){
+  .app{padding:10px}
+  /* Header */
+  .header{padding:10px 14px;gap:8px}
+  .header-left h1{font-size:14px}
+  .hdr-right{gap:6px}
+  .vessel-tabs{flex:1 1 100%;order:2;justify-content:center}
+  .vtab{flex:1;text-align:center;padding:7px 6px}
+  .user-chip{order:1}
+  .sync-pill{order:3;font-size:9px}
+  .hdr-btn{padding:5px 8px;font-size:10px}
+  /* Dates — 2×2 grid */
+  .dates-bar{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+  .df{min-width:0}
+  /* Area tabs — 2×2 */
+  .atab{min-width:calc(50% - 3px);flex:0 0 calc(50% - 3px)}
+  /* Progress */
+  .prog-label{min-width:0;font-size:11px;white-space:normal;max-width:120px}
+  /* Touch targets — checkboxes y botones más grandes */
+  .step-chk{width:26px;height:26px;border-radius:6px}
+  .step-chk.done::after{font-size:14px}
+  .mini-btn{width:28px;height:28px;font-size:12px}
+  /* Steps — más holgura */
+  .step{padding:11px 0;gap:10px}
+  .step-txt{font-size:14px}
+  /* PIN en pantalla chica */
+  .pin-input{font-size:22px;letter-spacing:7px;padding:12px 44px 12px 14px}
+  /* Modals */
+  .modal{padding:16px}
+  /* Notas */
+  .notes-ta{font-size:13px}
+}
+@media(max-width:380px){
+  .atab{min-width:100%;flex:0 0 100%}
+  .pin-input{font-size:18px;letter-spacing:5px}
+  .dates-bar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">ATUNTRO S.A.</div>
+    <h2>Checklist de Operaciones</h2>
+    <p class="login-sub" id="loginSub">¿Quién eres?</p>
+
+    <!-- PASO 1: elegir nombre -->
+    <div class="name-step" id="nameStep">
+      <div class="login-section-title">Selecciona tu nombre</div>
+      <div class="person-grid" id="loginGrid"></div>
+    </div>
+
+    <!-- PASO 2: PIN -->
+    <div class="pin-step" id="pinStep" style="display:none">
+      <div class="pin-who" id="pinWho"></div>
+      <div class="pin-label">Ingresa tu PIN (4 dígitos)</div>
+      <div class="pin-input-wrap">
+        <input type="password" id="pinInput" class="pin-input" maxlength="4"
+          inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+          placeholder="••••" oninput="onPinInput()" onkeydown="if(event.key==='Enter')tryLogin()">
+        <button class="pin-toggle" onclick="togglePinVis()" id="pinToggle" title="Mostrar/ocultar">👁</button>
+      </div>
+      <div class="login-err" id="loginErr"></div>
+      <button class="login-btn" onclick="tryLogin()">Ingresar →</button>
+      <span class="login-back" onclick="backToNames()">← Volver a seleccionar nombre</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTORY MODAL ══ -->
+<div class="modal-bg" id="histModal">
+  <div class="modal">
+    <h3>Historial del punto</h3>
+    <div id="histBody"></div>
+    <button class="modal-close" onclick="document.getElementById('histModal').classList.remove('show')">Cerrar</button>
+  </div>
+</div>
+
+<!-- ══ PEOPLE MODAL ══ -->
+<div class="modal-bg" id="peopleModal">
+  <div class="modal">
+    <h3>Gestionar personas y PINs</h3>
+    <div id="peopleList"></div>
+    <div class="padd">
+      <input type="text" id="newName" placeholder="Nombre completo" style="flex:2;min-width:120px">
+      <input type="text" id="newPin" placeholder="PIN (4 dígitos)" maxlength="4" style="width:110px;font-family:monospace" inputmode="numeric">
+      <button onclick="addPerson()">Agregar</button>
+    </div>
+    <p style="font-size:10px;color:#aaa;margin-top:8px">El PIN identifica a la persona — no es seguridad de datos sensibles.</p>
+    <button class="modal-close" onclick="document.getElementById('peopleModal').classList.remove('show')">Cerrar</button>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Checklist de Operaciones</h1>
+      <p id="vesselSub">Operaciones generales de embarcaciones — ATUNTRO S.A.</p>
+    </div>
+    <div class="hdr-right">
+      <div class="user-chip" id="userChip">
+        <div class="user-avatar" id="uAvatar">?</div>
+        <span class="user-chip-name" id="uName">—</span>
+        <span class="user-chip-badge" id="uBadge" style="display:none">MASTER</span>
+        <button class="logout-btn" onclick="logout()" title="Cerrar sesión">✕</button>
+      </div>
+      <div class="vessel-tabs">
+        <button class="vtab active" id="tab_fatima" onclick="switchVessel('fatima',this)">María Fátima</button>
+        <button class="vtab" id="tab_gracia" onclick="switchVessel('gracia',this)">María de Gracia</button>
+      </div>
+      <button class="hdr-btn" id="peopleBtn" style="display:none" onclick="openPeople()">⚙ Personas</button>
+      <button class="hdr-btn" onclick="resetVessel()">↺ Reiniciar</button>
+      <div class="sync-pill"><span class="sync-dot" id="syncDot"></span><span id="syncLbl">…</span></div>
+    </div>
+  </div>
+
+  <!-- DATES -->
+  <div class="dates-bar">
+    <div class="df">
+      <label>N° Entrada / Viaje</label>
+      <input type="text" id="tripId" placeholder="74A" oninput="markTyping();saveTripInfo()">
+    </div>
+    <div class="df">
+      <label>📥 Fecha de arribo</label>
+      <input type="date" id="dateArribo" oninput="markTyping();saveTripInfo();refreshUrgency()">
+      <span class="ds-badge" id="dsA"></span>
+    </div>
+    <div class="df">
+      <label>🐟 Fecha de descarga</label>
+      <input type="date" id="dateDescarga" oninput="markTyping();saveTripInfo();refreshUrgency()">
+      <span class="ds-badge" id="dsD"></span>
+    </div>
+    <div class="df">
+      <label>⚓ Fecha de zarpe</label>
+      <input type="date" id="dateZarpe" oninput="markTyping();saveTripInfo();refreshUrgency()">
+      <span class="ds-badge" id="dsZ"></span>
+    </div>
+  </div>
+
+  <!-- AREA TABS -->
+  <div class="area-tabs" id="areaTabs"></div>
+
+  <!-- PROGRESS -->
+  <div class="prog-wrap">
+    <span class="prog-label" id="progLabel">Progreso</span>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <span class="prog-pct" id="progPct">0%</span>
+  </div>
+
+  <!-- AREA PANEL -->
+  <div id="areaPanel"></div>
+
+  <div class="footer">ATUNTRO S.A. &mdash; Checklist Operaciones v3.0 &mdash; Uso interno</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   FIREBASE CONFIG
+   ══════════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey:"PEGAR_AQUI",
+  authDomain:"atuntro-ciclo.firebaseapp.com",
+  databaseURL:"https://atuntro-ciclo-default-rtdb.firebaseio.com",
+  projectId:"atuntro-ciclo",
+  storageBucket:"atuntro-ciclo.appspot.com",
+  messagingSenderId:"PEGAR_AQUI",
+  appId:"PEGAR_AQUI"
+};
+const FB_PATH = 'checklist_ops_v3';
+
+/* ══════════════════════════════════════════
+   ÁREAS Y CONTENIDO
+   ══════════════════════════════════════════ */
+const AREAS = [
+  {
+    id:'a1', title:'Previo Arribo', sub:'Coordinación mientras el barco navega hacia puerto',
+    color:'teal', dateKey:'arribo', dateLabel:'Arribo',
+    sections:[
+      {head:'Comunicación y coordinación', steps:[
+        {id:'a1s01',text:'Comunicar el ETA del barco a todo el personal por el chat interno'},
+        {id:'a1s02',text:'Verificar que los pagos a TPM estén cubiertos y sin mora'},
+        {id:'a1s03',text:'Coordinar con la agencia marítima la atención del arribo'},
+        {id:'a1s04',text:'Coordinar con TPM la disposición y ubicación del muelle a utilizar'},
+        {id:'a1s05',text:'Solicitar al barco la lista de trabajos de cubierta, máquinas, puente y pedidos generales'},
+      ]},
+      {head:'Consultas al Capitán y Maquinista', steps:[
+        {id:'a1s06',text:'Solicitar informe de remanentes de combustible diésel con los que arribará'},
+        {id:'a1s07',text:'Consultar temperaturas de las cubas y confirmar si está en condiciones de descargar'},
+        {id:'a1s08',text:'Consultar si existen dudas sobre la calidad del pescado por inconvenientes durante la marea'},
+        {id:'a1s09',text:'Consultar si el barco tiene limitantes para realizar la descarga y cuáles son'},
+        {id:'a1s10',text:'Consultar si hay enfermos a bordo, su estado y si requieren atención médica urgente'},
+        {id:'a1s11',text:'Consultar cuántas boyas recuperadas trae'},
+      ]},
+      {head:'Reportes y novedades', steps:[
+        {id:'a1s12',text:'Solicitar reporte de condición de los speed boats (hundimientos o rescates durante la marea)'},
+        {id:'a1s13',text:'Verificar si hubo actos o intentos de indisciplina a bordo — reportar por escrito'},
+        {id:'a1s14',text:'Ordenar al Jefe de Cubierta preparar el cuaderno de mantenimiento de pesca (pastecas y cables) actualizado para entregar al arribo'},
+      ]},
+    ]
+  },
+  {
+    id:'a2', title:'Al Arribo', sub:'Inspección general del buque en puerto',
+    color:'purple', dateKey:'arribo', dateLabel:'Arribo',
+    sections:[
+      {head:'Reunión inicial', steps:[
+        {id:'a2s01',text:'Reunión de trabajo sobre lo ocurrido en la marea con Capitán, Jefe de Máquinas, Jefe de Cubierta, speedbotero y panguero'},
+      ]},
+      {head:'Con el Capitán', steps:[
+        {id:'a2s02',text:'Confirmar que los informes de captura fueron enviados al SRP'},
+        {id:'a2s03',text:'Recoger informe de consumibles y millas recorridas en la marea'},
+        {id:'a2s04',text:'Registrar novedades: boyas recuperadas, enfermos, personal que desembarca, cursos pendientes y certificados médicos faltantes'},
+      ]},
+      {head:'Bitácoras y niveles', steps:[
+        {id:'a2s05',text:'Verificar registros de la bitácora de máquinas: motor principal, generadores y equipos de frío'},
+        {id:'a2s06',text:'Verificar existencia de diésel con recorrido de sondas; niveles de aceite y consumo de amoniaco'},
+        {id:'a2s07',text:'Coordinar con el Maquinista la evacuación de aceites sucios'},
+      ]},
+      {head:'Puente', steps:[
+        {id:'a2s08',text:'Verificar con el Navegante, antes de apagar: radios HF/VHF/2m, GPS, DMS, Navtex, radares, sistema de gobierno, piloto automático, AIS y megafonía'},
+      ]},
+      {head:'Sala de máquinas', steps:[
+        {id:'a2s09',text:'Verificar pérdidas de aceite y agua en motor principal, generadores, prensaestopas y motor de equipos hidráulicos'},
+        {id:'a2s10',text:'Confirmar que el sistema de frío no tenga fugas: compresores, cocina, cámaras de frío, hidráulico de gobierno y bombas de salmuera'},
+      ]},
+      {head:'Sistema hidráulico', steps:[
+        {id:'a2s11',text:'Verificar pérdidas en tuberías, bombas, válvulas de control, manómetros, winches de maniobra y winche principal'},
+        {id:'a2s12',text:'Verificar operatividad de todos los winches y del macaco'},
+      ]},
+      {head:'Sistema de refrigeración', steps:[
+        {id:'a2s13',text:'Contrastar anotaciones de la bitácora de máquinas con los parámetros de temperatura de los termógrafos'},
+        {id:'a2s14',text:'Verificar fugas de amoniaco en tuberías, uniones y válvulas; niveles en recibidores'},
+        {id:'a2s15',text:'Verificar sellos de las bombas de salmuera, vibración de motores y ruidos extraños'},
+      ]},
+      {head:'Sondas y niveles', steps:[
+        {id:'a2s16',text:'Tomar muestras de aceite en la bayoneta del cárter de motor principal, generadores e hidráulico'},
+        {id:'a2s17',text:'Verificar condición del aceite en cajas reductoras, tomafuerzas y multiplicadoras'},
+      ]},
+      {head:'Panga de pesca', steps:[
+        {id:'a2s18',text:'Probar arranque, marchas avante–atrás y sistema de gobierno; revisar aceite de cárter y caja reductora'},
+        {id:'a2s19',text:'Verificar comunicación de radio VHF de la panga'},
+      ]},
+      {head:'Aparejos de pesca', steps:[
+        {id:'a2s20',text:'Reunión con el Jefe de Cubierta: lances realizados, cables cambiados, estado y próximos cambios'},
+        {id:'a2s21',text:'Revisar orejas fijas (cáncamos) y orejas de pastecas — sin desgaste'},
+        {id:'a2s22',text:'Verificar bocines y pines de pastecas sin desgaste'},
+        {id:'a2s23',text:'Verificar cables de maniobra sin alacranes ni cocas pronunciadas'},
+      ]},
+      {head:'Speed boats', steps:[
+        {id:'a2s24',text:'Con los speedboteros: consultar limpieza de tanques de gasolina y recibir informe del estado general del motor'},
+        {id:'a2s26',text:'Verificar radio VHF operativo'},
+        {id:'a2s27',text:'Verificar cáncamos y estrobos de maniobra completos; grillete del macaco sin desgaste'},
+      ]},
+      {head:'Cofa', steps:[
+        {id:'a2s28',text:'Verificar en cofa: binoculares en buen estado, radio 2m operativo y megafonía funcional'},
+      ]},
+    ]
+  },
+  {
+    id:'a3', title:'Previa Descarga', sub:'Preparación del buque antes de descargar la pesca',
+    color:'amber', dateKey:'descarga', dateLabel:'Descarga',
+    sections:[
+      {head:'Seguridad — amoniaco', steps:[
+        {id:'a3s01',text:'Coordinar con el Maquinista la recogida del amoniaco de los serpentines — prevención de asfixia por rotura de tubo durante la descarga'},
+        {id:'a3s02',text:'Constatar la parada de compresores, recogida de amoniaco en recibidores y cierre de válvulas'},
+      ]},
+      {head:'Documentación para autoridades', steps:[
+        {id:'a3s03',text:'Tener listos para las autoridades de pesca: breakdown y bitácora de pesca'},
+      ]},
+      {head:'Verificación de la carga', steps:[
+        {id:'a3s05',text:'Verificar temperatura de la carga en cada cuba — lecturas de -10 °C a -12 °C'},
+        {id:'a3s06',text:'Confirmar con el Asistente de Operaciones que las temperaturas registradas habilitan el inicio de la descarga'},
+        {id:'a3s07',text:'Hacer sacar los sacos de pescado de la tripulación'},
+      ]},
+      {head:'Cubierta superior', steps:[
+        {id:'a3s08',text:'Limpieza (sin químicos) de la totalidad de la cubierta'},
+        {id:'a3s09',text:'Forrar con plástico el winche principal, mangueras de la pluma principal y mangueras de la consola hidráulica'},
+        {id:'a3s10',text:'Despejar o proteger con plástico los tanques con residuos de aceite de motores'},
+        {id:'a3s11',text:'Tener lista arena y trapos (sin químicos) para mitigar contaminación del pescado ante rotura hidráulica'},
+        {id:'a3s12',text:'Restringir la circulación de contratistas de máquinas por la cubierta de descarga'},
+      ]},
+      {head:'Cubierta de pesca', steps:[
+        {id:'a3s13',text:'Limpieza (sin químicos) de piso, mamparos, techos y sentinas — preparación para inspección de biólogos'},
+        {id:'a3s14',text:'Forrar con plástico el motor de equipos hidráulicos, mangueras, tomafuerza y multiplicadora'},
+        {id:'a3s15',text:'Mantener llenos los dispensadores de jabón líquido en los lavamanos'},
+        {id:'a3s16',text:'Cubrir con plástico todos los sacos de sal'},
+      ]},
+      {head:'Inicio de la descarga', steps:[
+        {id:'a3s17',text:'Probar los winches de descarga de la maniobra de tanques N.° 1 babor y estribor'},
+        {id:'a3s18',text:'Abrir tapas y escotillas de las cubas con el representante de control de calidad; tomar lecturas en presencia del Asistente de Operaciones'},
+        {id:'a3s19',text:'Comunicar a Gerencia el inicio de la descarga con comentario del estado, calidad y novedades del pescado'},
+      ]},
+    ]
+  },
+  {
+    id:'a4', title:'Antes del Zarpe', sub:'Pruebas y avituallamiento — 36 horas antes de zarpar',
+    color:'coral', dateKey:'zarpe', dateLabel:'Zarpe',
+    sections:[
+      {head:'Avituallamiento y cierres', steps:[
+        {id:'a4s01',text:'Verificar con el Maquinista que todos los pedidos de materiales de ferretería estén completos'},
+        {id:'a4s02',text:'Verificar aceites lubricantes, combustible diésel, agua potable, sal y demás avituallamiento completos'},
+        {id:'a4s03',text:'Recorrido de verificación: sistemas abiertos durante mantenimiento deben quedar cerrados'},
+        {id:'a4s04',text:'Reunión con el Jefe de Máquinas: programar horarios de recepción de agua, sal, combustible y víveres'},
+      ]},
+      {head:'Equipos de refrigeración', steps:[
+        {id:'a4s05',text:'Abrir válvulas del sistema y probar bombas de enfriamiento de cabezotes'},
+        {id:'a4s06',text:'Probar compresores: presiones de aceite y estado de presostatos de alta, baja y aceite'},
+        {id:'a4s07',text:'Presurizar el sistema y probar minuciosamente los serpentines de cada cuba'},
+        {id:'a4s08',text:'Probar bombas del condensador; controlar pérdidas en condensador y chillers'},
+        {id:'a4s09',text:'Revisar válvulas de paso e inyección manual, tuberías, presostatos y manómetros'},
+        {id:'a4s10',text:'Verificar sellos mecánicos, presiones de aceite, golpes raros y presiones fuera de rango'},
+        {id:'a4s11',text:'Verificar sensores de temperatura y ausencia de cortos en tableros y motores eléctricos'},
+        {id:'a4s12',text:'Verificar nivel de amoniaco en recibidor y estado de los arrancadores suaves'},
+      ]},
+      {head:'Prueba de propulsión', steps:[
+        {id:'a4s13',text:'Test del motor principal: presiones, temperaturas, ruidos extraños y fugas de aceite o agua'},
+        {id:'a4s14',text:'Probar la bomba de agua de enfriamiento'},
+        {id:'a4s15',text:'Verificar que las válvulas de control de aire de mando de marchas no tengan fugas'},
+        {id:'a4s16',text:'Verificar compresores de aire operando en automático, llenando la botella de arranque'},
+        {id:'a4s17',text:'Desde el puente: operar avante – stop – atrás por 3 segundos y dar por terminada la prueba'},
+      ]},
+      {head:'Caja reductora, ejes y descansos', steps:[
+        {id:'a4s18',text:'Caja reductora: sin vibración, nivel de aceite, presión mínima 280 psi, sin ruidos, marchas avante y atrás'},
+        {id:'a4s19',text:'Ejes de propulsión: controlar vibración durante la prueba y ajuste de pernos flojos'},
+        {id:'a4s20',text:'Verificar que los descansos hayan mantenido temperatura aceptable durante el arribo'},
+        {id:'a4s21',text:'Controlar que el aceite de los descansos no tenga pérdidas en las áreas de las felpas'},
+        {id:'a4s22',text:'Verificar que los empaques de la prensa del eje de cola sellen bien — riesgo de inundación'},
+      ]},
+      {head:'Motores generadores', steps:[
+        {id:'a4s23',text:'Arranques y paradas: controlar presiones y temperaturas; verificar voltaje, amperaje, kW y frecuencia'},
+        {id:'a4s24',text:'Verificar operación de las bombas de enfriamiento de cada motor'},
+        {id:'a4s25',text:'Verificar que los cargadores de batería suministren voltaje a sus respectivos bancos'},
+      ]},
+      {head:'Sistema de gobierno', steps:[
+        {id:'a4s26',text:'Poner operativo el sistema a distancia e in situ'},
+        {id:'a4s27',text:'Revisar pérdidas de aceite en sellos de cilindros hidráulicos y bombas; probar ambas bombas'},
+        {id:'a4s28',text:'Operar desde el puente el recorrido del indicador de caña hacia babor y estribor; apagar las bombas'},
+      ]},
+      {head:'Equipos del puente', steps:[
+        {id:'a4s29',text:'Probar todos los equipos del puente: radios VHF, HF y 2m (local y cofa), piloto automático, GPS, radares, luces de navegación, megafonía, comunicación radio-panga y radio-botes, fuentes de poder, ecosonda y equipo DMS'},
+      ]},
+      {head:'Sistema hidráulico', steps:[
+        {id:'a4s31',text:'Probar el sistema hidráulico principal y el de emergencia'},
+        {id:'a4s32',text:'Probar el winche principal: tambor de jareta, tow line, embragues y frenos'},
+        {id:'a4s33',text:'Probar winches de maniobra de pesca, macaco, pescantes y equipo de fondeo'},
+      ]},
+      {head:'Tomas de fondo y seguridad', steps:[
+        {id:'a4s34',text:'Verificar que los filtros de las tomas de fondo no estén obstruidos por plásticos o sacos'},
+        {id:'a4s35',text:'Probar bombas contra incendio y bombas de achique'},
+        {id:'a4s36',text:'Verificar operatividad del banco fijo de CO₂'},
+        {id:'a4s37',text:'Verificar mangueras contra incendio con tomas y pitones listos para operar'},
+        {id:'a4s38',text:'Verificar balsa salvavidas con candado asegurado y chicote del cabo de vida amarrado al barco'},
+      ]},
+      {head:'Embarcaciones auxiliares y cofa', steps:[
+        {id:'a4s39',text:'Panga: junto al panguero, probar motor y propulsión, marchas avante–atrás y recorrido'},
+        {id:'a4s40',text:'Speed boats: junto a los speedboteros y el mecánico de botes, realizar pruebas de operación y maniobra'},
+        {id:'a4s41',text:'Cofa: verificar que los 2 binoculares estén en su sitio y cubiertos'},
+      ]},
+      {head:'Gambuzas de víveres', steps:[
+        {id:'a4s42',text:'Limpieza interna de ambas cámaras de víveres'},
+        {id:'a4s43',text:'Probar equipo de frío de carnes y verduras, bomba del condensador, condensador, evaporador y ventiladores'},
+        {id:'a4s44',text:'Probar el timer de descongelación de la cámara de carne y las resistencias del evaporador'},
+      ]},
+      {head:'Trámite final', steps:[
+        {id:'a4s45',text:'Comunicar a la agencia marítima para obtener el zarpe'},
+      ]},
+    ]
+  },
+];
+
+/* ══════════════════════════════════════════
+   PERSONAS Y MASTER
+   ══════════════════════════════════════════ */
+const MASTER_NAME = 'Ricardo Baida T';
+
+// Umbrales por defecto (días): soon = aviso amarillo, urgent = aviso rojo
+const DEFAULT_THRESHOLDS = { a1:{soon:7,urgent:2,leadDays:0}, a2:{soon:7,urgent:2,leadDays:0}, a3:{soon:5,urgent:1,leadDays:0}, a4:{soon:10,urgent:3,leadDays:2} };
+
+let people = [];
+let state  = {fatima:{}, gracia:{}};
+let activeUser   = null;
+let currentVessel= 'fatima';
+let currentArea  = 'a1';
+let isTyping=false, typingTimer=null, persistTimer=null;
+let db=null, fbReady=false, applyingRemote=false;
+let pinVisible=false;
+
+const VESSEL_INFO={fatima:'María Fátima (180 TM · ~20 tripulantes)',gracia:'María de Gracia (215 TM · ~21 tripulantes)'};
+
+const DEFAULT_PEOPLE=[
+  {name:'Rubén Vera',      pin:'1111'},
+  {name:'Ricardo Baida D', pin:'2222'},
+  {name:'Ricardo Baida T', pin:'3333'},
+  {name:'Rómulo Pérez',    pin:'4444'},
+  {name:'David Pérez',     pin:'5555'},
+  {name:'Fernando Farfán', pin:'6666'},
+];
+
+function lsKey(v){return 'atuntro_ops_v3_'+v;}
+function lsPpl()  {return 'atuntro_ops_v3_personas';}
+function lsThr()  {return 'atuntro_ops_v3_thresholds';}
+
+function loadLocal(v){try{const r=localStorage.getItem(lsKey(v));return r?JSON.parse(r):{};}catch(e){return{};}}
+function loadPpl() {try{const r=localStorage.getItem(lsPpl());return r?JSON.parse(r):DEFAULT_PEOPLE.slice();}catch(e){return DEFAULT_PEOPLE.slice();}}
+function loadThr() {
+  try{const r=localStorage.getItem(lsThr());return r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_THRESHOLDS));}
+  catch(e){return JSON.parse(JSON.stringify(DEFAULT_THRESHOLDS));}
+}
+
+let thresholds = {};
+
+function markTyping(){isTyping=true;clearTimeout(typingTimer);typingTimer=setTimeout(()=>{isTyping=false;},900);}
+function persistDebounced(){clearTimeout(persistTimer);persistTimer=setTimeout(persistNow,600);}
+function persistNow(){
+  try{localStorage.setItem(lsKey(currentVessel),JSON.stringify(state[currentVessel]));}catch(e){}
+  try{localStorage.setItem(lsPpl(),JSON.stringify(people));}catch(e){}
+  try{localStorage.setItem(lsThr(),JSON.stringify(thresholds));}catch(e){}
+  if(fbReady&&!applyingRemote){
+    setSync('saving','Guardando…');
+    Promise.all([
+      db.ref(FB_PATH+'/'+currentVessel).set(state[currentVessel]),
+      db.ref(FB_PATH+'/personas').set(people),
+      db.ref(FB_PATH+'/thresholds').set(thresholds),
+    ]).then(()=>setSync('ok','Sincronizado')).catch(()=>setSync('local','Solo local'));
+  } else if(!fbReady){setSync('local','Solo local');}
+}
+function setSync(cls,label){
+  document.getElementById('syncDot').className='sync-dot '+cls;
+  document.getElementById('syncLbl').textContent=label;
+}
+
+/* Firebase */
+function initFirebase(){
+  if(String(FIREBASE_CONFIG.apiKey).includes('PEGAR')){setSync('local','Solo local');return;}
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.database();fbReady=true;setSync('ok','Sincronizado');
+    ['fatima','gracia'].forEach(v=>{
+      db.ref(FB_PATH+'/'+v).on('value',snap=>{
+        if(isTyping)return;
+        const r=snap.val();
+        if(r&&JSON.stringify(r)!==JSON.stringify(state[v])){
+          applyingRemote=true;state[v]=r;
+          try{localStorage.setItem(lsKey(v),JSON.stringify(r));}catch(e){}
+          if(v===currentVessel)render();
+          applyingRemote=false;
+        }
+      });
+    });
+    db.ref(FB_PATH+'/personas').on('value',snap=>{
+      if(isTyping)return;const r=snap.val();
+      if(r&&Array.isArray(r)){applyingRemote=true;people=r;try{localStorage.setItem(lsPpl(),JSON.stringify(r));}catch(e){}applyingRemote=false;}
+    });
+    db.ref(FB_PATH+'/thresholds').on('value',snap=>{
+      if(isTyping)return;const r=snap.val();
+      if(r){applyingRemote=true;thresholds=r;try{localStorage.setItem(lsThr(),JSON.stringify(r));}catch(e){}renderAreaTabs();applyingRemote=false;}
+    });
+  }catch(e){setSync('local','Solo local');}
+}
+
+/* ══════════════════════════════════════════
+   LOGIN
+   ══════════════════════════════════════════ */
+let loginTarget=null;
+
+function showLogin(){
+  document.getElementById('loginOverlay').style.display='flex';
+  goToStep1();
+  renderLoginGrid();
+}
+function hideLogin(){document.getElementById('loginOverlay').style.display='none';}
+
+function goToStep1(){
+  document.getElementById('nameStep').style.display='block';
+  document.getElementById('pinStep').style.display='none';
+  document.getElementById('loginSub').textContent='¿Quién eres?';
+  if(document.getElementById('loginErr')) document.getElementById('loginErr').textContent='';
+  if(document.getElementById('pinInput')) document.getElementById('pinInput').value='';
+  loginTarget=null;
+}
+
+function escJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function renderLoginGrid(){
+  document.getElementById('loginGrid').innerHTML=people.map(p=>
+    `<button class="person-btn" onclick="selectPerson('${escJs(p.name)}')">${escH(p.name)}</button>`
+  ).join('');
+}
+
+function selectPerson(name){
+  loginTarget=people.find(p=>p.name===name);
+  if(!loginTarget)return;
+  document.getElementById('nameStep').style.display='none';
+  document.getElementById('pinStep').style.display='block';
+  document.getElementById('pinWho').textContent='👤 '+name;
+  document.getElementById('loginSub').textContent='Ingresa tu PIN para continuar';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('pinInput').value='';
+  setTimeout(()=>document.getElementById('pinInput').focus(), 80);
+}
+
+function onPinInput(){
+  const inp=document.getElementById('pinInput');
+  inp.value=inp.value.replace(/\D/g,'').slice(0,4);
+  document.getElementById('loginErr').textContent='';
+}
+
+function togglePinVis(){
+  pinVisible=!pinVisible;
+  document.getElementById('pinInput').type=pinVisible?'text':'password';
+  document.getElementById('pinToggle').textContent=pinVisible?'🙈':'👁';
+}
+
+function tryLogin(){
+  if(!loginTarget){document.getElementById('loginErr').textContent='Selecciona tu nombre primero.';return;}
+  const entered=document.getElementById('pinInput').value.trim();
+  if(entered===loginTarget.pin){
+    activeUser=loginTarget;
+    updateUserChip();
+    hideLogin();
+    render();
+  } else {
+    document.getElementById('loginErr').textContent='PIN incorrecto. Intenta de nuevo.';
+    document.getElementById('pinInput').value='';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+function backToNames(){
+  goToStep1();
+}
+
+function logout(){
+  if(!confirm('¿Cerrar sesión?'))return;
+  activeUser=null;
+  updateUserChip();
+  showLogin();
+}
+
+function updateUserChip(){
+  const av=document.getElementById('uAvatar');
+  const nm=document.getElementById('uName');
+  const badge=document.getElementById('uBadge');
+  const peopleBtn=document.getElementById('peopleBtn');
+  if(activeUser){
+    const init=activeUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    av.textContent=init; nm.textContent=activeUser.name;
+    const isM=isMaster();
+    badge.style.display=isM?'inline':'none';
+    peopleBtn.style.display=isM?'inline':'none';
+  } else {
+    av.textContent='?'; nm.textContent='—';
+    badge.style.display='none'; peopleBtn.style.display='none';
+  }
+}
+function isMaster(){ return !!activeUser && activeUser.name===MASTER_NAME; }
+
+/* ══════════════════════════════════════════
+   PERSONAS
+   ══════════════════════════════════════════ */
+function openPeople(){
+  renderPeopleModal();
+  document.getElementById('peopleModal').classList.add('show');
+}
+function renderPeopleModal(){
+  document.getElementById('peopleList').innerHTML=people.map((p,i)=>
+    `<div class="prow"><span>${escH(p.name)}</span><span class="prow-pin">${escH(p.pin)}</span>
+     <button class="prow-del" onclick="removePerson(${i})">✕</button></div>`
+  ).join('')||'<p style="font-size:12px;color:#aaa;padding:8px 0">Sin personas.</p>';
+}
+function addPerson(){
+  const name=document.getElementById('newName').value.trim();
+  const pin=document.getElementById('newPin').value.trim();
+  if(!name){alert('Escribe un nombre.');return;}
+  if(!/^\d{4}$/.test(pin)){alert('El PIN debe ser 4 dígitos numéricos.');return;}
+  if(people.find(p=>p.name===name)){alert('Esa persona ya existe.');return;}
+  people.push({name,pin});
+  document.getElementById('newName').value='';
+  document.getElementById('newPin').value='';
+  renderPeopleModal();renderLoginGrid();persistDebounced();
+}
+function removePerson(i){
+  if(!confirm('¿Eliminar a "'+people[i].name+'"?'))return;
+  people.splice(i,1);renderPeopleModal();renderLoginGrid();persistDebounced();
+}
+
+/* ══════════════════════════════════════════
+   URGENCIA Y FECHAS
+   ══════════════════════════════════════════ */
+function diffDays(dateStr){
+  if(!dateStr)return null;
+  const today=new Date();today.setHours(0,0,0,0);
+  const t=new Date(dateStr+'T00:00:00');
+  return Math.round((t-today)/(864e5));
+}
+function urgClass(aid,dateStr){
+  const d=diffDays(dateStr);
+  if(d===null)return 'urg-none';
+  const thr=thresholds[aid]||DEFAULT_THRESHOLDS[aid]||{soon:7,urgent:2};
+  if(d<0)return 'urg-past';
+  if(d<=thr.urgent)return 'urg-urgent';
+  if(d<=thr.soon)return 'urg-soon';
+  return 'urg-ok';
+}
+function badgeClass(aid,dateStr){
+  const uc=urgClass(aid,dateStr);
+  return uc==='urg-ok'?'ds-ok':uc==='urg-soon'?'ds-soon':uc==='urg-urgent'?'ds-urgent':uc==='urg-past'?'ds-past':'';
+}
+function daysLabel(dateStr){
+  const d=diffDays(dateStr);
+  if(d===null)return'';
+  if(d<0)return'Hace '+(Math.abs(d))+' día'+(Math.abs(d)>1?'s':'');
+  if(d===0)return'¡HOY!';
+  return'En '+d+' día'+(d>1?'s':'');
+}
+function refreshUrgency(){
+  const trip=vesselState()._trip||{};
+  const pairs=[
+    {inputId:'dateArribo',   dsId:'dsA',  dateKey:'arribo'},
+    {inputId:'dateDescarga', dsId:'dsD',  dateKey:'descarga'},
+    {inputId:'dateZarpe',    dsId:'dsZ',  dateKey:'zarpe'},
+  ];
+  pairs.forEach(({inputId,dsId,dateKey})=>{
+    const val=document.getElementById(inputId).value;
+    // find area using this dateKey for badge class
+    const area=AREAS.find(a=>a.dateKey===dateKey)||AREAS[0];
+    const bc=badgeClass(area.id,val);
+    const el=document.getElementById(dsId);
+    el.className='ds-badge '+(bc||'');
+    el.textContent=daysLabel(val)||'';
+    el.style.display=val?'inline-block':'none';
+  });
+  renderAreaTabs();
+  updateDeadlineBadge(currentArea);
+}
+
+/* ══════════════════════════════════════════
+   ESTADO
+   ══════════════════════════════════════════ */
+function vesselState(){return state[currentVessel];}
+function areaData(aid){
+  const vs=vesselState();
+  if(!vs.areas)vs.areas={};
+  if(!vs.areas[aid])vs.areas[aid]={steps:{},extraSteps:[],notes:'',sectionOrder:{},customSteps:{},deletedSteps:{}};
+  const ad=vs.areas[aid];
+  if(!ad.extraSteps)ad.extraSteps=[];
+  if(!ad.steps)ad.steps={};
+  if(!ad.sectionOrder)ad.sectionOrder={};
+  if(!ad.customSteps)ad.customSteps={};
+  if(!ad.deletedSteps)ad.deletedSteps={};
+  // Migración de versión anterior: extraSteps sueltos -> customSteps de la última sección
+  if(ad.extraSteps.length){
+    const area=AREAS.find(a=>a.id===aid);
+    const lastSec=area?area.sections.length-1:0;
+    ad.extraSteps.forEach(es=>{
+      if(!ad.customSteps[es.id]) ad.customSteps[es.id]={text:es.text||'Nuevo sub-item', sec:lastSec};
+    });
+    ad.extraSteps=[];
+  }
+  return ad;
+}
+function stepState(aid,sid){
+  const ad=areaData(aid);
+  if(!ad.steps[sid])ad.steps[sid]={};
+  return ad.steps[sid];
+}
+/* Devuelve la lista ordenada y reconciliada de sub-items de una sección */
+function getSectionItems(area,secIdx){
+  const ad=areaData(area.id);
+  const sec=area.sections[secIdx];
+  if(!sec) return [];
+  const predefIds=sec.steps.filter(s=>!ad.deletedSteps[s.id]).map(s=>s.id);
+  const customIds=Object.keys(ad.customSteps).filter(id=>ad.customSteps[id].sec===secIdx);
+  const validIds=new Set([...predefIds,...customIds]);
+
+  let order=ad.sectionOrder[secIdx];
+  if(!order){ order=[...predefIds,...customIds]; }
+  else{
+    order=order.filter(id=>validIds.has(id));
+    [...predefIds,...customIds].forEach(id=>{ if(!order.includes(id)) order.push(id); });
+  }
+  ad.sectionOrder[secIdx]=order;
+
+  return order.map(id=>{
+    if(ad.customSteps[id]){
+      return {id, text:ad.customSteps[id].text, isCustom:true};
+    }
+    const base=sec.steps.find(s=>s.id===id);
+    const ss=ad.steps[id];
+    const text=(ss&&ss.text!==undefined)?ss.text:(base?base.text:'');
+    return {id, text, isCustom:false};
+  });
+}
+function allSteps(area){
+  let all=[];
+  area.sections.forEach((sec,idx)=>{ all=all.concat(getSectionItems(area,idx)); });
+  return all;
+}
+function moveStep(aid,secIdx,id,dir){
+  if(!isMaster())return;
+  const area=AREAS.find(a=>a.id===aid);
+  getSectionItems(area,secIdx); // asegura reconciliación del orden
+  const ad=areaData(aid);
+  const order=ad.sectionOrder[secIdx];
+  const idx=order.indexOf(id);
+  const swapIdx=idx+dir;
+  if(idx<0||swapIdx<0||swapIdx>=order.length)return;
+  [order[idx],order[swapIdx]]=[order[swapIdx],order[idx]];
+  persistDebounced();
+  render();
+}
+function deleteStepMaster(aid,secIdx,id){
+  if(!isMaster())return;
+  if(!confirm('¿Eliminar este sub-item?\n\nEsta acción no se puede deshacer.'))return;
+  const ad=areaData(aid);
+  if(ad.customSteps[id]) delete ad.customSteps[id];
+  else ad.deletedSteps[id]=true;
+  if(ad.sectionOrder[secIdx]) ad.sectionOrder[secIdx]=ad.sectionOrder[secIdx].filter(x=>x!==id);
+  delete ad.steps[id];
+  persistDebounced();
+  render();
+}
+function addSectionStep(aid,secIdx){
+  if(!isMaster())return;
+  const area=AREAS.find(a=>a.id===aid);
+  getSectionItems(area,secIdx); // asegura que sectionOrder[secIdx] exista
+  const ad=areaData(aid);
+  const id='extra_'+Date.now();
+  ad.customSteps[id]={text:'Nuevo sub-item',sec:secIdx};
+  ad.sectionOrder[secIdx].push(id);
+  persistDebounced();
+  render();
+}
+function sectionCheckAll(aid,secIdx){
+  if(!activeUser){alert('Inicia sesión con tu nombre y PIN antes de marcar puntos.');return;}
+  const area=AREAS.find(a=>a.id===aid);
+  const items=getSectionItems(area,secIdx);
+  if(!items.length)return;
+  const ad=areaData(aid);
+  const allDone=items.every(it=>ad.steps[it.id]&&ad.steps[it.id].done);
+  if(allDone)return; // no-op: ya están todos marcados
+  items.forEach(it=>{
+    const ss=stepState(aid,it.id);
+    if(!ss.done){
+      if(!ss.hist)ss.hist=[];
+      ss.done=true;
+      ss.hist.push({action:'marcado',by:activeUser.name,at:Date.now()});
+    }
+  });
+  persistDebounced();
+  render();
+}
+
+/* ══════════════════════════════════════════
+   INTERACCIÓN DE PASOS
+   ══════════════════════════════════════════ */
+function toggleStep(aid,sid){
+  if(!activeUser){alert('Inicia sesión con tu nombre y PIN antes de marcar un punto.');return;}
+  const ss=stepState(aid,sid);
+  if(!ss.hist)ss.hist=[];
+  const action=ss.done?'reversado':'marcado';
+  ss.done=!ss.done;
+  ss.hist.push({action,by:activeUser.name,at:Date.now()});
+  persistDebounced();
+  const chk=document.getElementById('chk_'+sid);
+  const txt=document.getElementById('txt_'+sid);
+  const stEl=document.getElementById('st_'+sid);
+  if(chk)chk.classList.toggle('done',ss.done);
+  if(txt)txt.classList.toggle('done-txt',ss.done);
+  if(stEl)stEl.innerHTML=stampsHtml(ss);
+  updateProgress();renderAreaTabs();
+}
+function stampsHtml(ss){
+  if(!ss.hist||!ss.hist.length)return'';
+  const last=ss.hist[ss.hist.length-1];
+  const isMk=last.action==='marcado';
+  const histBtn=ss.hist.length>1
+    ?`<button class="hist-btn" onclick="openHist(event,'${encodeURIComponent(JSON.stringify(ss.hist))}')">Historial (${ss.hist.length})</button>`:'';
+  return `<span class="stamp ${isMk?'stamp-ok':'stamp-rev'}">${isMk?'✓':'↩'} ${escH(last.by)} · ${fmtDt(last.at)}</span>${histBtn}`;
+}
+function openHist(evt,encoded){
+  evt.stopPropagation();
+  const entries=JSON.parse(decodeURIComponent(encoded));
+  document.getElementById('histBody').innerHTML=[...entries].reverse().map(h=>{
+    const ok=h.action==='marcado';
+    return`<div class="he ${ok?'he-ok':'he-rev'}"><div class="he-action">${ok?'✓ Marcado':'↩ Reversado'}</div><div class="he-meta">${escH(h.by)} — ${fmtDt(h.at)}</div></div>`;
+  }).join('');
+  document.getElementById('histModal').classList.add('show');
+}
+function updateStepText(aid,sid,val){
+  if(!isMaster())return;
+  markTyping();
+  const ad=areaData(aid);
+  if(ad.customSteps[sid]){ ad.customSteps[sid].text=val; }
+  else { stepState(aid,sid).text=val; }
+  persistDebounced();
+}
+function updateResp(aid,sid,val){
+  if(!isMaster())return;
+  stepState(aid,sid).resp=val;persistDebounced();
+  const s=document.getElementById('resp_'+sid);if(s)s.classList.toggle('has-val',!!val);
+}
+function updateNote(aid,val){markTyping();areaData(aid).notes=val;persistDebounced();}
+function updateObs(aid,sid,val){markTyping();stepState(aid,sid).obs=val;persistDebounced();}
+
+/* ══════════════════════════════════════════
+   UMBRALES (solo master)
+   ══════════════════════════════════════════ */
+function saveThr(aid,key,val){
+  if(!thresholds[aid])thresholds[aid]={};
+  thresholds[aid][key]=parseInt(val)||0;
+  persistDebounced();renderAreaTabs();refreshUrgency();updateDeadlineBadge(aid);
+}
+function thrConfigHtml(aid){
+  if(!isMaster())return'';
+  const thr=thresholds[aid]||DEFAULT_THRESHOLDS[aid]||{soon:7,urgent:2,leadDays:0};
+  return`<div class="urg-config visible">
+    <h4>⚙ Configuración (solo administrador)</h4>
+    <div class="urg-row">
+      <label>🟡 Mostrar en amarillo si faltan ≤</label>
+      <input type="number" min="1" max="60" value="${thr.soon}" oninput="saveThr('${aid}','soon',this.value)"> días
+    </div>
+    <div class="urg-row">
+      <label>🔴 Mostrar en rojo si faltan ≤</label>
+      <input type="number" min="0" max="30" value="${thr.urgent}" oninput="saveThr('${aid}','urgent',this.value)"> días
+    </div>
+    <div class="urg-row urg-row-sep">
+      <label>📅 Fecha límite: días antes del ancla</label>
+      <input type="number" min="0" max="60" value="${thr.leadDays||0}" oninput="saveThr('${aid}','leadDays',this.value)"> días
+    </div>
+  </div>`;
+}
+function deadlineFor(aid){
+  const area=AREAS.find(a=>a.id===aid);
+  const trip=vesselState()._trip||{};
+  const dateMap={arribo:trip.arribo,descarga:trip.descarga,zarpe:trip.zarpe};
+  const anchor=dateMap[area.dateKey];
+  const lead=(thresholds[aid]&&thresholds[aid].leadDays)||0;
+  if(!anchor||!lead)return'';
+  const d=new Date(anchor+'T00:00:00');
+  d.setDate(d.getDate()-lead);
+  const p=n=>String(n).padStart(2,'0');
+  return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear();
+}
+function updateDeadlineBadge(aid){
+  const el=document.getElementById('deadlineBadge_'+aid);
+  if(!el)return;
+  const dl=deadlineFor(aid);
+  el.style.display=dl?'inline-block':'none';
+  el.textContent=dl?'📅 Fecha límite: '+dl:'';
+}
+
+/* ══════════════════════════════════════════
+   PROGRESO Y TABS
+   ══════════════════════════════════════════ */
+function areaCounts(area){
+  const ad=areaData(area.id),all=allSteps(area);
+  return{done:all.filter(s=>ad.steps[s.id]&&ad.steps[s.id].done).length,total:all.length};
+}
+function updateProgress(){
+  const area=AREAS.find(a=>a.id===currentArea);
+  const c=areaCounts(area);
+  const pct=c.total?Math.round(c.done/c.total*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progLabel').textContent='Progreso — '+area.title;
+}
+function renderAreaTabs(){
+  const trip=vesselState()._trip||{};
+  const dateMap={arribo:trip.arribo,descarga:trip.descarga,zarpe:trip.zarpe};
+  document.getElementById('areaTabs').innerHTML=AREAS.map(a=>{
+    const c=areaCounts(a);
+    const dv=dateMap[a.dateKey]||'';
+    const uc=urgClass(a.id,dv);
+    const bc=badgeClass(a.id,dv);
+    const dl=daysLabel(dv);
+    const dateRow=dv
+      ?`<div class="atab-daterow"><span class="atab-datelabel">${a.dateLabel}:</span><span class="atab-urgbadge ${bc}">${fmtShort(dv)}${dl?' · '+dl:''}</span></div>`
+      :`<div class="atab-daterow"><span class="atab-datelabel" style="color:#ddd">Sin fecha</span></div>`;
+    const deadline=deadlineFor(a.id);
+    const deadlineRow=deadline?`<div class="atab-deadline">📅 Límite: ${deadline}</div>`:'';
+    return`<button class="atab ${uc}${a.id===currentArea?' active':''}" onclick="switchArea('${a.id}')">
+      <span class="atab-name">${a.title}</span>
+      <span class="atab-count">${c.done}/${c.total} completados</span>
+      ${dateRow}
+      ${deadlineRow}
+    </button>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════ */
+function respOpts(sel){
+  return'<option value="">Sin asignar</option>'+people.map(p=>`<option value="${escA(p.name)}"${p.name===sel?' selected':''}>${escH(p.name)}</option>`).join('')+(sel&&!people.find(p=>p.name===sel)?`<option value="${escA(sel)}" selected>${escH(sel)}</option>`:'');
+}
+function stepHtml(aid,secIdx,item,numLabel){
+  const ss=stepState(aid,item.id),done=!!ss.done;
+  const master=isMaster();
+  const roAttr=master?'':'readonly';
+  const disAttr=master?'':'disabled';
+  const ctrlBtns=master?`<span class="step-actions">
+      <button class="mini-btn" title="Subir" onclick="moveStep('${aid}',${secIdx},'${item.id}',-1)">▲</button>
+      <button class="mini-btn" title="Bajar" onclick="moveStep('${aid}',${secIdx},'${item.id}',1)">▼</button>
+      <button class="mini-btn mini-del" title="Eliminar" onclick="deleteStepMaster('${aid}',${secIdx},'${item.id}')">✕</button>
+    </span>`:'';
+  return`<div class="step">
+    <div class="step-num">${numLabel}</div>
+    <div class="step-chk${done?' done':''}" id="chk_${item.id}" onclick="toggleStep('${aid}','${item.id}')"></div>
+    <div class="step-body">
+      <textarea class="step-txt${done?' done-txt':''}" id="txt_${item.id}" rows="1" ${roAttr}
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';updateStepText('${aid}','${item.id}',this.value)">${escH(item.text)}</textarea>
+      <div class="step-meta">
+        <select class="resp-sel${ss.resp?' has-val':''}" id="resp_${item.id}" ${disAttr} onchange="updateResp('${aid}','${item.id}',this.value)">${respOpts(ss.resp||'')}</select>
+        ${ctrlBtns}
+      </div>
+      <input type="text" class="obs-input" id="obs_${item.id}" placeholder="Observaciones…" value="${escA(ss.obs||'')}" oninput="updateObs('${aid}','${item.id}',this.value)">
+      <div class="stamps" id="st_${item.id}">${stampsHtml(ss)}</div>
+    </div>
+  </div>`;
+}
+const BL={teal:'bl-teal',purple:'bl-purple',amber:'bl-amber',coral:'bl-coral'};
+function render(){
+  loadTripInfo();refreshUrgency();renderAreaTabs();
+  const area=AREAS.find(a=>a.id===currentArea);
+  const master=isMaster();
+  const deadline=deadlineFor(area.id);
+  let h=`<div class="area-panel ${BL[area.color]}"><div class="area-sub">${escH(area.sub)}</div>`;
+  h+=`<div class="deadline-badge" id="deadlineBadge_${area.id}" style="display:${deadline?'inline-block':'none'}">${deadline?'📅 Fecha límite: '+deadline:''}</div>`;
+  area.sections.forEach((sec,secIdx)=>{
+    const items=getSectionItems(area,secIdx);
+    const ad=areaData(area.id);
+    const allDone=items.length>0&&items.every(it=>ad.steps[it.id]&&ad.steps[it.id].done);
+    h+=`<div class="sec-head-row">
+      <div class="sec-head">${secIdx+1}. ${escH(sec.head)}</div>
+      <button class="sec-checkall${allDone?' all-done':''}" title="Marcar todos los sub-items de esta sección" onclick="sectionCheckAll('${area.id}',${secIdx})">${allDone?'✓ Todos marcados':'☐ Marcar todos'}</button>
+    </div>`;
+    h+=items.map((it,i)=>stepHtml(area.id,secIdx,it,(secIdx+1)+'.'+(i+1))).join('');
+    if(master){
+      h+=`<button class="add-substep-btn" onclick="addSectionStep('${area.id}',${secIdx})">+ Agregar sub-item a esta sección</button>`;
+    }
+  });
+  h+=thrConfigHtml(area.id);
+  const ad2=areaData(area.id);
+  h+=`<div class="notes-wrap"><div class="notes-lbl">Notas de esta área</div>
+    <textarea class="notes-ta" placeholder="Observaciones, pendientes, contactos..."
+      oninput="updateNote('${area.id}',this.value)">${escH(ad2.notes||'')}</textarea>
+  </div></div>`;
+  document.getElementById('areaPanel').innerHTML=h;
+  document.querySelectorAll('#areaPanel textarea.step-txt').forEach(ta=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+  updateProgress();
+}
+
+/* ══════════════════════════════════════════
+   VIAJE
+   ══════════════════════════════════════════ */
+function saveTripInfo(){
+  vesselState()._trip={
+    id:document.getElementById('tripId').value,
+    arribo:document.getElementById('dateArribo').value,
+    descarga:document.getElementById('dateDescarga').value,
+    zarpe:document.getElementById('dateZarpe').value,
+  };
+  persistDebounced();
+}
+function loadTripInfo(){
+  const t=vesselState()._trip||{};
+  document.getElementById('tripId').value=t.id||'';
+  document.getElementById('dateArribo').value=t.arribo||'';
+  document.getElementById('dateDescarga').value=t.descarga||'';
+  document.getElementById('dateZarpe').value=t.zarpe||'';
+}
+
+/* ══════════════════════════════════════════
+   EMBARCACIÓN / ÁREA
+   ══════════════════════════════════════════ */
+function switchVessel(v,btn){
+  currentVessel=v;
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vesselSub').textContent=VESSEL_INFO[v];
+  render();
+}
+function switchArea(aid){currentArea=aid;render();}
+function resetVessel(){
+  const nm=currentVessel==='fatima'?'María Fátima':'María de Gracia';
+  if(!confirm('¿Reiniciar el viaje de '+nm+'?\n\nSe borrarán checks, historial, notas y fechas.\nSe conservan textos editados, pasos agregados y responsables asignados.'))return;
+  const vs=vesselState();
+  if(vs.areas)Object.keys(vs.areas).forEach(aid=>{
+    const ad=vs.areas[aid];
+    ad.notes='';
+    Object.keys(ad.steps||{}).forEach(sid=>{delete ad.steps[sid].done;delete ad.steps[sid].hist;});
+  });
+  vs._trip={};
+  persistNow();render();
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+   ══════════════════════════════════════════ */
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escA(s){return escH(s).replace(/"/g,'&quot;');}
+function fmtDt(ts){
+  if(!ts)return'';const d=new Date(ts),p=n=>String(n).padStart(2,'0');
+  return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function fmtShort(str){
+  if(!str)return'';const[y,m,d]=str.split('-');return d+'/'+m+'/'+y;
+}
+
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
+state.fatima=loadLocal('fatima');
+state.gracia=loadLocal('gracia');
+people=loadPpl();
+thresholds=loadThr();
+document.getElementById('vesselSub').textContent=VESSEL_INFO.fatima;
+render();
+showLogin();
+initFirebase();
+</script>
+</body>
+</html>
