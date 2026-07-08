@@ -356,14 +356,13 @@ button,select,.step-chk,.person-btn,.vtab,.login-btn{touch-action:manipulation}
    FIREBASE CONFIG
    ══════════════════════════════════════════ */
 const FIREBASE_CONFIG = {
- const firebaseConfig = {
-apiKey: "AIzaSyBmebQ8XsZFWsHAPNnOAYeHAkgkwSHZKp4",
-authDomain: "atuntro-ciclo.firebaseapp.com",
-databaseURL: "https://atuntro-ciclo-default-rtdb.firebaseio.com",
-projectId: "atuntro-ciclo",
-storageBucket: "atuntro-ciclo.firebasestorage.app",
-messagingSenderId: "561565252212",
-appId: "1:561565252212:web:00d9cb8b34317ba8afaf21"
+  apiKey:"PEGAR_AQUI",
+  authDomain:"atuntro-ciclo.firebaseapp.com",
+  databaseURL:"https://atuntro-ciclo-default-rtdb.firebaseio.com",
+  projectId:"atuntro-ciclo",
+  storageBucket:"atuntro-ciclo.appspot.com",
+  messagingSenderId:"PEGAR_AQUI",
+  appId:"PEGAR_AQUI"
 };
 const FB_PATH = 'checklist_ops_v3';
 
@@ -820,7 +819,6 @@ function refreshUrgency(){
   ];
   pairs.forEach(({inputId,dsId,dateKey})=>{
     const val=document.getElementById(inputId).value;
-    // find area using this dateKey for badge class
     const area=AREAS.find(a=>a.dateKey===dateKey)||AREAS[0];
     const bc=badgeClass(area.id,val);
     const el=document.getElementById(dsId);
@@ -846,7 +844,6 @@ function areaData(aid){
   if(!ad.sectionOrder)ad.sectionOrder={};
   if(!ad.customSteps)ad.customSteps={};
   if(!ad.deletedSteps)ad.deletedSteps={};
-  // Migración de versión anterior: extraSteps sueltos -> customSteps de la última sección
   if(ad.extraSteps.length){
     const area=AREAS.find(a=>a.id===aid);
     const lastSec=area?area.sections.length-1:0;
@@ -862,7 +859,6 @@ function stepState(aid,sid){
   if(!ad.steps[sid])ad.steps[sid]={};
   return ad.steps[sid];
 }
-/* Devuelve la lista ordenada y reconciliada de sub-items de una sección */
 function getSectionItems(area,secIdx){
   const ad=areaData(area.id);
   const sec=area.sections[secIdx];
@@ -897,7 +893,7 @@ function allSteps(area){
 function moveStep(aid,secIdx,id,dir){
   if(!isMaster())return;
   const area=AREAS.find(a=>a.id===aid);
-  getSectionItems(area,secIdx); // asegura reconciliación del orden
+  getSectionItems(area,secIdx);
   const ad=areaData(aid);
   const order=ad.sectionOrder[secIdx];
   const idx=order.indexOf(id);
@@ -921,7 +917,7 @@ function deleteStepMaster(aid,secIdx,id){
 function addSectionStep(aid,secIdx){
   if(!isMaster())return;
   const area=AREAS.find(a=>a.id===aid);
-  getSectionItems(area,secIdx); // asegura que sectionOrder[secIdx] exista
+  getSectionItems(area,secIdx);
   const ad=areaData(aid);
   const id='extra_'+Date.now();
   ad.customSteps[id]={text:'Nuevo sub-item',sec:secIdx};
@@ -936,7 +932,7 @@ function sectionCheckAll(aid,secIdx){
   if(!items.length)return;
   const ad=areaData(aid);
   const allDone=items.every(it=>ad.steps[it.id]&&ad.steps[it.id].done);
-  if(allDone)return; // no-op: ya están todos marcados
+  if(allDone)return;
   items.forEach(it=>{
     const ss=stepState(aid,it.id);
     if(!ss.done){
